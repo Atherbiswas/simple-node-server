@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -18,6 +19,34 @@ const users = [
     {id: 3, name: 'GHT', email: 'ght@gmail.com'}
 ];
 
+
+
+
+const uri = "mongodb+srv://Ather1:Hehw09EuCGhCGxPO@cluster0.x7ap8hv.mongodb.net/?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+async function run() {
+    try {
+        const userColletion = client.db('simpleNode').collection('users');
+        const user = {name: 'ather', email: 'ather@gmail.com'};
+        // const result = await userColletion.insertOne(user);
+        // console.log(result)
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await userColletion.insertOne(user);
+            console.log(result);
+            user.id = result.insertedId
+            res.send(user);
+        });
+    }
+    finally{
+
+    }
+}
+
+run().catch(err => console.log(err))
+
+
+
 app.get('/users', (req,res) => {
     if(req.query.name){
         const search = req.query.name;
@@ -30,13 +59,13 @@ app.get('/users', (req,res) => {
     }
 });
 
-app.post('/users', (req, res) => {
-    const user = req.body;
-    user.id = users.length + 1;
-    users.push(user);
-    console.log(user);
-    res.send(user);
-})
+// app.post('/users', (req, res) => {
+//     const user = req.body;
+//     user.id = users.length + 1;
+//     users.push(user);
+//     console.log(user);
+//     res.send(user);
+// });
 
 app.listen(port, () => {
     console.log(`simple node server running on port ${port}`);
